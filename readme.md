@@ -1,44 +1,132 @@
 # Scheduling API
 
-A backend REST API for managing appointments, staff, services and users.
-Built with Node.js and PostgreSQL.
+A RESTful backend API designed to manage appointments, staff, services and users within a multi-tenant scheduling system.
 
-## Project Purpose
+Built with Node.js, Express and PostgreSQL.
 
-This project was built as part of my transition into backend development.
-The goal is to design a scheduling system focusing on:
+---
 
-- Data modeling
-- Relational integrity
-- Business logic validation
-- Multi-tenant architecture concepts
+## Project Overview
 
-## Architecture Decisions
+This project was developed as part of my transition into backend engineering, with a strong focus on system design and data integrity rather than just endpoint implementation.
 
-- Soft delete strategy for critical entities
-- Appointment status implemented as a catalog table
-- UNIQUE constraint to prevent double booking
-- Multi-tenant design using clinic_id
-- Validation in backend + database constraints (defense in depth)
+The main objective is to design a scheduling system that prioritizes:
 
-## Core Entities
+- Relational data modeling
+- Business rule enforcement
+- Multi-tenant isolation
+- Database-level integrity
+- Scalable architectural decisions
 
+---
+
+## System Architecture
+
+The system follows a multi-tenant architecture using a shared database model with `clinic_id` as tenant discriminator.
+
+Each core entity includes `clinic_id` to ensure strict data isolation between tenants.
+
+Security and integrity are enforced through:
+
+- Backend validation
+- Database constraints
+- Composite uniqueness rules
+- Controlled state transitions
+
+This approach applies a **defense-in-depth strategy**, ensuring that business logic is protected at multiple layers.
+
+---
+
+## Core Domain Model
+
+Main entities:
+
+- Clinics (tenants)
 - Users
 - Staff
 - Services
 - Appointments
-- Appointment Status
+- Appointment Status (catalog table)
+- Roles (catalog table)
 
-## Tech Stack
+Appointments act as the central transactional entity connecting users, staff and services.
 
-- Node.js
-- Express
-- PostgreSQL
-- JWT (planned)
+---
 
-## How to Run
+## Database Design (ERD)
 
-1. Clone the repository
-2. Run `npm install`
-3. Configure environment variables
-4. Run `npm start`
+```mermaid
+erDiagram
+    CLINICS {
+        int id PK
+        string name
+        boolean active
+        timestamp created_at
+    }
+
+    USERS {
+        int id PK
+        int clinic_id FK
+        int role_id FK
+        string name
+        string email
+        boolean active
+        timestamp created_at
+    }
+
+    STAFF {
+        int id PK
+        int clinic_id FK
+        int role_id FK
+        string name
+        boolean active
+        timestamp created_at
+    }
+
+    SERVICES {
+        int id PK
+        int clinic_id FK
+        string name
+        int duration_minutes
+        decimal price
+        boolean active
+        timestamp created_at
+    }
+
+    APPOINTMENTS {
+        int id PK
+        int clinic_id FK
+        int user_id FK
+        int staff_id FK
+        int service_id FK
+        int status_id FK
+        timestamp appointment_date
+        timestamp created_at
+    }
+
+    APPOINTMENT_STATUS {
+        int id PK
+        string name
+        boolean is_final
+        boolean active
+        timestamp created_at
+    }
+
+    ROLES {
+        int id PK
+        string name
+        boolean active
+        timestamp created_at
+    }
+
+    CLINICS ||--o{ USERS : has
+    CLINICS ||--o{ STAFF : has
+    CLINICS ||--o{ SERVICES : has
+    CLINICS ||--o{ APPOINTMENTS : has
+
+    USERS ||--o{ APPOINTMENTS : books
+    STAFF ||--o{ APPOINTMENTS : attends
+    SERVICES ||--o{ APPOINTMENTS : includes
+    APPOINTMENT_STATUS ||--o{ APPOINTMENTS : defines
+    ROLES ||--o{ USERS : assigned_to
+    ROLES ||--o{ STAFF : assigned_to
