@@ -22,3 +22,17 @@ app.get("/", (req, res) => {
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
 });
+
+// prueba
+const pool = require('./src/config/db/db');
+
+async function testDB() {
+    try {
+        const result = await pool.query('SELECT NOW()');
+        console.log('DB connected:', result.rows[0]);
+    } catch (err) {
+        console.error('DB connection error', err);
+    }
+}
+
+testDB();
