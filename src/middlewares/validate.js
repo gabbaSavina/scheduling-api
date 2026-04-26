@@ -1,13 +1,13 @@
-const { validationResult } = require("express-validator");
-const { StatusCodes } = require("http-status-codes");
+const { validationResult } = require('express-validator');
+const { StatusCodes } = require('http-status-codes');
 
 const validate = (req, res, next) => {
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
     return res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({
-      status: "error",
-      message: "Validation failed",
+      status: 'error',
+      message: 'Validation failed',
       errors: errors.array().map((e) => ({
         field: e.path,
         message: e.msg,

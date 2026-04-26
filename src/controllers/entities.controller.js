@@ -1,9 +1,5 @@
-const { users, staff, services } = require("../services/entities.service");
-const {
-  sendSuccess,
-  sendCreated,
-  sendNoContent,
-} = require("../middlewares/response");
+const { users, staff, services } = require('../services/entities.service');
+const { sendSuccess, sendCreated, sendNoContent } = require('../middlewares/response');
 
 // Factory que genera un controller estándar dado un service
 const makeController = (service) => ({
@@ -36,11 +32,7 @@ const makeController = (service) => ({
 
   update: async (req, res, next) => {
     try {
-      const data = await service.update(
-        req.params.id,
-        req.params.clinicId,
-        req.body,
-      );
+      const data = await service.update(req.params.id, req.params.clinicId, req.body);
       sendSuccess(res, data);
     } catch (err) {
       next(err);

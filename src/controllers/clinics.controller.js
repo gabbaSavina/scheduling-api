@@ -1,9 +1,5 @@
-const clinicsService = require("../services/clinics.service");
-const {
-  sendSuccess,
-  sendCreated,
-  sendNoContent,
-} = require("../middlewares/response");
+const clinicsService = require('../services/clinics.service');
+const { sendSuccess, sendCreated, sendNoContent } = require('../middlewares/response');
 
 const getAll = async (req, res, next) => {
   try {
