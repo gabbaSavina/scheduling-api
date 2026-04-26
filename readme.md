@@ -22,6 +22,10 @@ REST API for multi-tenant scheduling management with clinics, users, staff, serv
 
 ```text
 scheduling-api/
+|-- .env.example
+|-- .github/
+|   `-- workflows/
+|       `-- ci.yml
 |-- index.js
 |-- src/
 |   |-- app.js
@@ -35,9 +39,14 @@ scheduling-api/
 |-- database/
 |   |-- schema.sql
 |   `-- seed.sql
+|-- docs/
+|   |-- PORTFOLIO_AUDIT.md
+|   |-- app-flows.md
+|   |-- demo-script.md
+|   |-- http-examples.http
+|   `-- openapi.yaml
 |-- test/
 |   `-- app.test.js
-`-- PORTFOLIO_AUDIT.md
 ```
 
 ## Setup
@@ -157,8 +166,11 @@ Content-Type: application/json
 - `docs/openapi.yaml`: baseline OpenAPI contract for the core endpoints
 - `docs/http-examples.http`: ready-to-run request examples for local demos
 - `docs/demo-script.md`: 3-minute walkthrough for interviews
+- `docs/app-flows.md`: visual summary of app startup, request lifecycle and test execution
+- `docs/NEXT_IMPROVEMENTS.md`: suggested roadmap for the next iteration of the project
+- `docs/PORTFOLIO_AUDIT.md`: internal roadmap and portfolio audit
 - `.github/workflows/ci.yml`: CI that installs dependencies, runs syntax checks and executes the test suite
 
 ## Notes
 
-The portfolio audit is available in `PORTFOLIO_AUDIT.md` and the schema/seed files in `database/` reflect the current API model.
+The portfolio audit is available in `docs/PORTFOLIO_AUDIT.md` and the schema/seed files in `database/` reflect the current API model.
