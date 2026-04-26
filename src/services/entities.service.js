@@ -1,5 +1,5 @@
-const pool = require('../config/db');
-const { NotFoundError, ConflictError } = require('../middleware/errorHandler');
+const pool = require('../config/db/db');
+const { NotFoundError, ConflictError } = require('../middlewares/errorHandler');
 
 // ─── USERS ────────────────────────────────────────────────────────────────────
 

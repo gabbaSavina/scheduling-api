@@ -1,5 +1,5 @@
 const { body, param } = require('express-validator');
-const { validate } = require('../middleware/validate');
+const { validate } = require('../middlewares/validate');
 
 // ─── REUTILIZABLES ────────────────────────────────────────────────────────────
 

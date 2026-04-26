@@ -1,5 +1,5 @@
-const pool = require('../config/db');
-const { NotFoundError, BadRequestError, ConflictError } = require('../middleware/errorHandler');
+const pool = require('../config/db/db');
+const { NotFoundError, BadRequestError, ConflictError } = require('../middlewares/errorHandler');
 
 const BASE_QUERY = `
     SELECT

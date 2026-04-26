@@ -1,5 +1,5 @@
 const appointmentsService = require('../services/appointments.service');
-const { sendSuccess, sendCreated } = require('../utils/response');
+const { sendSuccess, sendCreated } = require('../middlewares/response');
 
 const getAllByClinic = async (req, res, next) => {
     try {

@@ -1,5 +1,5 @@
 const { users, staff, services } = require('../services/entities.service');
-const { sendSuccess, sendCreated, sendNoContent } = require('../utils/response');
+const { sendSuccess, sendCreated, sendNoContent } = require('../middlewares/response');
 
 // Factory que genera un controller estándar dado un service
 const makeController = (service) => ({

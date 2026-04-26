@@ -1,165 +1,80 @@
 /* =====================================================
-    Scheduling API - Database Schema
-    Author: Savina Gabba
-    Description: Database schema for appointment
-    scheduling system.
+   Scheduling API - Database Schema (aligned with services)
 ===================================================== */
 
-
-/* =====================================================
-    TABLE: roles
-    Description: Defines system roles for users
-    Examples: admin, staff, user
-===================================================== */
+CREATE TABLE clinics (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(120) NOT NULL UNIQUE,
+    active BOOLEAN NOT NULL DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 
 CREATE TABLE roles (
-    role_id SERIAL PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     name VARCHAR(50) NOT NULL UNIQUE,
     active BOOLEAN NOT NULL DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-
-/* =====================================================
-    TABLE: users
-    Description: Application users who can book
-    appointments. Each user belongs to a role.
-===================================================== */
-
 CREATE TABLE users (
-    user_id SERIAL PRIMARY KEY,
-    role_id INTEGER NOT NULL,
+    id SERIAL PRIMARY KEY,
+    clinic_id INTEGER NOT NULL REFERENCES clinics(id) ON DELETE CASCADE,
+    role_id INTEGER NOT NULL REFERENCES roles(id),
     name VARCHAR(100) NOT NULL,
-    email VARCHAR(150) NOT NULL UNIQUE,
-    password_hash TEXT NOT NULL,
-    active BOOLEAN DEFAULT TRUE,
+    email VARCHAR(150) NOT NULL,
+    active BOOLEAN NOT NULL DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-
-    CONSTRAINT fk_user_role
-        FOREIGN KEY (role_id)
-        REFERENCES roles(role_id)
+    CONSTRAINT uq_users_email_per_clinic UNIQUE (clinic_id, email)
 );
-
-
-/* =====================================================
-    TABLE: services
-    Description: Services that can be booked
-    Example: physiotherapy, consultation, massage
-===================================================== */
-
-CREATE TABLE services (
-    service_id SERIAL PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    description TEXT,
-    duration_minutes INTEGER NOT NULL,
-    price NUMERIC(10,2),
-    active BOOLEAN DEFAULT TRUE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
-
-/* =====================================================
-    TABLE: staff
-    Description: Professionals providing services
-===================================================== */
 
 CREATE TABLE staff (
-    staff_id SERIAL PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
+    clinic_id INTEGER NOT NULL REFERENCES clinics(id) ON DELETE CASCADE,
+    role_id INTEGER NOT NULL REFERENCES roles(id),
     name VARCHAR(100) NOT NULL,
-    email VARCHAR(150) UNIQUE,
-    phone VARCHAR(50),
-    active BOOLEAN DEFAULT TRUE,
+    active BOOLEAN NOT NULL DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-
-/* =====================================================
-    TABLE: staff_availability
-    Description: Defines weekly availability of staff
-    day_of_week:
-    0 = Sunday
-    1 = Monday
-    2 = Tuesday
-    3 = Wednesday
-    4 = Thursday
-    5 = Friday
-    6 = Saturday
-===================================================== */
-
-CREATE TABLE staff_availability (
-    availability_id SERIAL PRIMARY KEY,
-    staff_id INTEGER NOT NULL,
-    day_of_week INTEGER NOT NULL,
-    start_time TIME NOT NULL,
-    end_time TIME NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-
-    CONSTRAINT fk_availability_staff
-        FOREIGN KEY (staff_id)
-        REFERENCES staff(staff_id)
-        ON DELETE CASCADE
+CREATE TABLE services (
+    id SERIAL PRIMARY KEY,
+    clinic_id INTEGER NOT NULL REFERENCES clinics(id) ON DELETE CASCADE,
+    name VARCHAR(100) NOT NULL,
+    duration_minutes INTEGER NOT NULL CHECK (duration_minutes > 0),
+    price NUMERIC(10,2) NOT NULL CHECK (price > 0),
+    active BOOLEAN NOT NULL DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-
-/* =====================================================
-    TABLE: appointments
-    Description: Booked appointments between users
-    and staff for a specific service
-===================================================== */
+CREATE TABLE appointment_status (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(50) NOT NULL UNIQUE,
+    is_final BOOLEAN NOT NULL DEFAULT FALSE,
+    active BOOLEAN NOT NULL DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 
 CREATE TABLE appointments (
-    appointment_id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL,
-    staff_id INTEGER NOT NULL,
-    service_id INTEGER NOT NULL,
-
-    appointment_date DATE NOT NULL,
-    start_time TIME NOT NULL,
-    end_time TIME NOT NULL,
-
-    status VARCHAR(20) DEFAULT 'scheduled',
-    notes TEXT,
-
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-
-    CONSTRAINT fk_appointment_user
-        FOREIGN KEY (user_id)
-        REFERENCES users(user_id),
-
-    CONSTRAINT fk_appointment_staff
-        FOREIGN KEY (staff_id)
-        REFERENCES staff(staff_id),
-
-    CONSTRAINT fk_appointment_service
-        FOREIGN KEY (service_id)
-        REFERENCES services(service_id)
+    id SERIAL PRIMARY KEY,
+    clinic_id INTEGER NOT NULL REFERENCES clinics(id) ON DELETE CASCADE,
+    user_id INTEGER NOT NULL REFERENCES users(id),
+    staff_id INTEGER NOT NULL REFERENCES staff(id),
+    service_id INTEGER NOT NULL REFERENCES services(id),
+    status_id INTEGER NOT NULL REFERENCES appointment_status(id),
+    appointment_date TIMESTAMP NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE INDEX idx_users_clinic ON users(clinic_id);
+CREATE INDEX idx_staff_clinic ON staff(clinic_id);
+CREATE INDEX idx_services_clinic ON services(clinic_id);
+CREATE INDEX idx_appointments_clinic ON appointments(clinic_id);
+CREATE INDEX idx_appointments_staff_date ON appointments(staff_id, appointment_date);
 
-/* =====================================================
-    INITIAL DATA
-    Insert default roles for the system
-===================================================== */
+INSERT INTO roles (name) VALUES ('admin'), ('staff'), ('user');
 
-INSERT INTO roles (name) VALUES
-('admin'),
-('staff'),
-('user');
-
-
-/* =====================================================
-    INDEXES
-    Improve performance for frequent queries
-===================================================== */
-
-CREATE INDEX idx_appointments_user
-ON appointments(user_id);
-
-CREATE INDEX idx_appointments_staff
-ON appointments(staff_id);
-
-CREATE INDEX idx_appointments_date
-ON appointments(appointment_date);
-
-CREATE INDEX idx_staff_availability_staff
-ON staff_availability(staff_id);
+INSERT INTO appointment_status (name, is_final) VALUES
+('pending', false),
+('confirmed', false),
+('completed', true),
+('cancelled', true);

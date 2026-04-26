@@ -1,32 +1,38 @@
-require('dotenv').config();
-const express = require('express');
-const routes = require('./src/routes');
-const { errorHandler } = require('./src/middleware/errorHandler');
+const { Router } = require('express');
+const clinicsController = require('../controllers/clinics.controller');
+const appointmentsController = require('../controllers/appointments.controller');
+const { usersController, staffController, servicesController } = require('../controllers/entities.controller');
+const { clinicRules, userRules, staffRules, serviceRules, appointmentRules } = require('../middlewares/validators');
 
-const app = express();
-const PORT = process.env.PORT || 3000;
+const router = Router();
 
-// ─── MIDDLEWARE GLOBAL ────────────────────────────────────────────────────────
-app.use(express.json());
+router.get('/clinics', clinicsController.getAll);
+router.get('/clinics/:id', clinicsController.getById);
+router.post('/clinics', clinicRules.create, clinicsController.create);
+router.put('/clinics/:id', clinicRules.update, clinicsController.update);
+router.delete('/clinics/:id', clinicsController.deactivate);
 
-// ─── HEALTH CHECK ─────────────────────────────────────────────────────────────
-app.get('/health', (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
-});
+router.get('/clinics/:clinicId/users', usersController.getAll);
+router.get('/clinics/:clinicId/users/:id', usersController.getById);
+router.post('/clinics/:clinicId/users', userRules.create, usersController.create);
+router.put('/clinics/:clinicId/users/:id', userRules.update, usersController.update);
+router.delete('/clinics/:clinicId/users/:id', usersController.deactivate);
 
-// ─── API ROUTES ───────────────────────────────────────────────────────────────
-app.use('/api/v1', routes);
+router.get('/clinics/:clinicId/staff', staffController.getAll);
+router.get('/clinics/:clinicId/staff/:id', staffController.getById);
+router.post('/clinics/:clinicId/staff', staffRules.create, staffController.create);
+router.put('/clinics/:clinicId/staff/:id', staffRules.update, staffController.update);
+router.delete('/clinics/:clinicId/staff/:id', staffController.deactivate);
 
-// ─── 404 HANDLER ─────────────────────────────────────────────────────────────
-app.use((req, res) => {
-  res.status(404).json({ status: 'error', message: 'Route not found' });
-});
+router.get('/clinics/:clinicId/services', servicesController.getAll);
+router.get('/clinics/:clinicId/services/:id', servicesController.getById);
+router.post('/clinics/:clinicId/services', serviceRules.create, servicesController.create);
+router.put('/clinics/:clinicId/services/:id', serviceRules.update, servicesController.update);
+router.delete('/clinics/:clinicId/services/:id', servicesController.deactivate);
 
-// ─── ERROR HANDLER (debe ir último) ──────────────────────────────────────────
-app.use(errorHandler);
+router.get('/clinics/:clinicId/appointments', appointmentsController.getAllByClinic);
+router.get('/clinics/:clinicId/appointments/:id', appointmentsController.getById);
+router.post('/clinics/:clinicId/appointments', appointmentRules.create, appointmentsController.create);
+router.patch('/clinics/:clinicId/appointments/:id/status', appointmentRules.updateStatus, appointmentsController.updateStatus);
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT} [${process.env.NODE_ENV || 'development'}]`);
-});
-
-module.exports = app;
+module.exports = router;
