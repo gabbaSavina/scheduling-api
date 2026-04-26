@@ -1,132 +1,156 @@
-# Scheduling API
+﻿# Scheduling API
 
-A RESTful backend API designed to manage appointments, staff, services and users within a multi-tenant scheduling system.
+REST API for multi-tenant scheduling management with clinics, users, staff, services and appointments.
 
-Built with Node.js, Express and PostgreSQL.
+## Stack
 
----
+- Node.js
+- Express
+- PostgreSQL
+- express-validator
+- node:test for smoke coverage
 
-## Project Overview
+## What This Project Shows
 
-This project was developed as part of my transition into backend engineering, with a strong focus on system design and data integrity rather than just endpoint implementation.
+- Multi-tenant data isolation through `clinic_id`
+- Layered architecture: routes -> controllers -> services -> database
+- Validation at the HTTP layer plus business rules in services
+- Consistent API error responses
+- SQL schema aligned with the current service layer
 
-The main objective is to design a scheduling system that prioritizes:
+## Project Structure
 
-- Relational data modeling
-- Business rule enforcement
-- Multi-tenant isolation
-- Database-level integrity
-- Scalable architectural decisions
+```text
+scheduling-api/
+|-- index.js
+|-- src/
+|   |-- app.js
+|   |-- config/
+|   |   `-- db/
+|   |       `-- db.js
+|   |-- controllers/
+|   |-- middlewares/
+|   |-- routes/
+|   `-- services/
+|-- database/
+|   |-- schema.sql
+|   `-- seed.sql
+|-- test/
+|   `-- app.test.js
+`-- PORTFOLIO_AUDIT.md
+```
 
----
+## Setup
 
-## System Architecture
+```bash
+git clone https://github.com/gabbaSavina/scheduling-api.git
+cd scheduling-api
+npm install
+cp .env.example .env
+psql -U your_user -d your_db -f database/schema.sql
+psql -U your_user -d your_db -f database/seed.sql
+npm run dev
+```
 
-The system follows a multi-tenant architecture using a shared database model with `clinic_id` as tenant discriminator.
+## Scripts
 
-Each core entity includes `clinic_id` to ensure strict data isolation between tenants.
+```bash
+npm run dev
+npm start
+npm test
+```
 
-Security and integrity are enforced through:
+## Base URL
 
-- Backend validation
-- Database constraints
-- Composite uniqueness rules
-- Controlled state transitions
+```text
+/api/v1
+```
 
-This approach applies a **defense-in-depth strategy**, ensuring that business logic is protected at multiple layers.
+## Main Endpoints
 
----
+### Clinics
 
-## Core Domain Model
+- `GET /clinics`
+- `GET /clinics/:id`
+- `POST /clinics`
+- `PUT /clinics/:id`
+- `DELETE /clinics/:id`
 
-Main entities:
+### Clinic-scoped entities
 
-- Clinics (tenants)
-- Users
-- Staff
-- Services
-- Appointments
-- Appointment Status (catalog table)
-- Roles (catalog table)
+- `GET /clinics/:clinicId/users`
+- `GET /clinics/:clinicId/staff`
+- `GET /clinics/:clinicId/services`
+- `POST /clinics/:clinicId/users`
+- `POST /clinics/:clinicId/staff`
+- `POST /clinics/:clinicId/services`
+- `PUT /clinics/:clinicId/users/:id`
+- `PUT /clinics/:clinicId/staff/:id`
+- `PUT /clinics/:clinicId/services/:id`
+- `DELETE /clinics/:clinicId/users/:id`
+- `DELETE /clinics/:clinicId/staff/:id`
+- `DELETE /clinics/:clinicId/services/:id`
 
-Appointments act as the central transactional entity connecting users, staff and services.
+### Appointments
 
----
+- `GET /clinics/:clinicId/appointments`
+- `GET /clinics/:clinicId/appointments/:id`
+- `POST /clinics/:clinicId/appointments`
+- `PATCH /clinics/:clinicId/appointments/:id/status`
 
-## Database Design (ERD)
+Supported filters for appointment listing:
 
-```mermaid
-erDiagram
-    CLINICS {
-        int id PK
-        string name
-        boolean active
-        timestamp created_at
+- `status_id`
+- `staff_id`
+- `date`
+
+## Example Requests
+
+Create an appointment:
+
+```http
+POST /api/v1/clinics/1/appointments
+Content-Type: application/json
+
+{
+  "user_id": 3,
+  "staff_id": 2,
+  "service_id": 1,
+  "appointment_date": "2026-06-15T10:00:00Z"
+}
+```
+
+Update appointment status:
+
+```http
+PATCH /api/v1/clinics/1/appointments/5/status
+Content-Type: application/json
+
+{ "status_id": 2 }
+```
+
+## Error Shape
+
+```json
+{
+  "status": "error",
+  "message": "Validation failed",
+  "errors": [
+    {
+      "field": "clinicId",
+      "message": "clinicId must be a positive integer"
     }
+  ]
+}
+```
 
-    USERS {
-        int id PK
-        int clinic_id FK
-        int role_id FK
-        string name
-        string email
-        boolean active
-        timestamp created_at
-    }
+## Current Smoke Coverage
 
-    STAFF {
-        int id PK
-        int clinic_id FK
-        int role_id FK
-        string name
-        boolean active
-        timestamp created_at
-    }
+- `GET /health`
+- unknown route returns `404`
+- invalid route params return `422`
+- invalid appointment payload returns field-level validation errors
 
-    SERVICES {
-        int id PK
-        int clinic_id FK
-        string name
-        int duration_minutes
-        decimal price
-        boolean active
-        timestamp created_at
-    }
+## Notes
 
-    APPOINTMENTS {
-        int id PK
-        int clinic_id FK
-        int user_id FK
-        int staff_id FK
-        int service_id FK
-        int status_id FK
-        timestamp appointment_date
-        timestamp created_at
-    }
-
-    APPOINTMENT_STATUS {
-        int id PK
-        string name
-        boolean is_final
-        boolean active
-        timestamp created_at
-    }
-
-    ROLES {
-        int id PK
-        string name
-        boolean active
-        timestamp created_at
-    }
-
-    CLINICS ||--o{ USERS : has
-    CLINICS ||--o{ STAFF : has
-    CLINICS ||--o{ SERVICES : has
-    CLINICS ||--o{ APPOINTMENTS : has
-
-    USERS ||--o{ APPOINTMENTS : books
-    STAFF ||--o{ APPOINTMENTS : attends
-    SERVICES ||--o{ APPOINTMENTS : includes
-    APPOINTMENT_STATUS ||--o{ APPOINTMENTS : defines
-    ROLES ||--o{ USERS : assigned_to
-    ROLES ||--o{ STAFF : assigned_to
+The portfolio audit is available in `PORTFOLIO_AUDIT.md` and the schema/seed files in `database/` reflect the current API model.
