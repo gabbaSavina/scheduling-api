@@ -7,7 +7,8 @@
     "start": "node index.js",
     "dev": "nodemon index.js",
     "check": "node --check index.js && node --check src/app.js && node --check src/routes/index.js && node --check src/middlewares/validators.js && node --check test/app.test.js",
-    "test": "node --test"
+    "test": "node --test",
+    "format": "prettier --write ."
   },
   "dependencies": {
     "dotenv": "^16.3.1",
@@ -18,6 +19,7 @@
     "psql": "^0.0.1"
   },
   "devDependencies": {
-    "nodemon": "^3.0.2"
+    "nodemon": "^3.0.2",
+    "prettier": "^3.8.3"
   }
 }

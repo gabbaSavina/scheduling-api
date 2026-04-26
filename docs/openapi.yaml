@@ -21,7 +21,7 @@ paths:
       tags: [Health]
       summary: Health check
       responses:
-        '200':
+        "200":
           description: API is running
           content:
             application/json:
@@ -39,12 +39,12 @@ paths:
       tags: [Clinics]
       summary: List active clinics
       responses:
-        '200':
+        "200":
           description: Clinics list
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SuccessClinicsResponse'
+                $ref: "#/components/schemas/SuccessClinicsResponse"
     post:
       tags: [Clinics]
       summary: Create a clinic
@@ -53,104 +53,104 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ClinicInput'
+              $ref: "#/components/schemas/ClinicInput"
       responses:
-        '201':
+        "201":
           description: Clinic created
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SuccessClinicResponse'
-        '409':
-          $ref: '#/components/responses/ErrorResponse'
+                $ref: "#/components/schemas/SuccessClinicResponse"
+        "409":
+          $ref: "#/components/responses/ErrorResponse"
   /api/v1/clinics/{id}:
     get:
       tags: [Clinics]
       summary: Get a clinic by id
       parameters:
-        - $ref: '#/components/parameters/IdParam'
+        - $ref: "#/components/parameters/IdParam"
       responses:
-        '200':
+        "200":
           description: Clinic details
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SuccessClinicResponse'
-        '404':
-          $ref: '#/components/responses/ErrorResponse'
+                $ref: "#/components/schemas/SuccessClinicResponse"
+        "404":
+          $ref: "#/components/responses/ErrorResponse"
     put:
       tags: [Clinics]
       summary: Update a clinic
       parameters:
-        - $ref: '#/components/parameters/IdParam'
+        - $ref: "#/components/parameters/IdParam"
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ClinicInput'
+              $ref: "#/components/schemas/ClinicInput"
       responses:
-        '200':
+        "200":
           description: Clinic updated
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SuccessClinicResponse'
-        '422':
-          $ref: '#/components/responses/ValidationErrorResponse'
+                $ref: "#/components/schemas/SuccessClinicResponse"
+        "422":
+          $ref: "#/components/responses/ValidationErrorResponse"
     delete:
       tags: [Clinics]
       summary: Deactivate a clinic
       parameters:
-        - $ref: '#/components/parameters/IdParam'
+        - $ref: "#/components/parameters/IdParam"
       responses:
-        '204':
+        "204":
           description: Clinic deactivated
-        '404':
-          $ref: '#/components/responses/ErrorResponse'
+        "404":
+          $ref: "#/components/responses/ErrorResponse"
   /api/v1/clinics/{clinicId}/users:
     get:
       tags: [Users]
       summary: List users for a clinic
       parameters:
-        - $ref: '#/components/parameters/ClinicIdParam'
+        - $ref: "#/components/parameters/ClinicIdParam"
       responses:
-        '200':
+        "200":
           description: Users list
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SuccessUsersResponse'
-        '422':
-          $ref: '#/components/responses/ValidationErrorResponse'
+                $ref: "#/components/schemas/SuccessUsersResponse"
+        "422":
+          $ref: "#/components/responses/ValidationErrorResponse"
     post:
       tags: [Users]
       summary: Create a user inside a clinic
       parameters:
-        - $ref: '#/components/parameters/ClinicIdParam'
+        - $ref: "#/components/parameters/ClinicIdParam"
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UserInput'
+              $ref: "#/components/schemas/UserInput"
       responses:
-        '201':
+        "201":
           description: User created
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SuccessUserResponse'
-        '409':
-          $ref: '#/components/responses/ErrorResponse'
-        '422':
-          $ref: '#/components/responses/ValidationErrorResponse'
+                $ref: "#/components/schemas/SuccessUserResponse"
+        "409":
+          $ref: "#/components/responses/ErrorResponse"
+        "422":
+          $ref: "#/components/responses/ValidationErrorResponse"
   /api/v1/clinics/{clinicId}/appointments:
     get:
       tags: [Appointments]
       summary: List appointments for a clinic
       parameters:
-        - $ref: '#/components/parameters/ClinicIdParam'
+        - $ref: "#/components/parameters/ClinicIdParam"
         - in: query
           name: status_id
           schema:
@@ -167,80 +167,80 @@ paths:
             type: string
             format: date
       responses:
-        '200':
+        "200":
           description: Appointments list
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SuccessAppointmentsResponse'
-        '422':
-          $ref: '#/components/responses/ValidationErrorResponse'
+                $ref: "#/components/schemas/SuccessAppointmentsResponse"
+        "422":
+          $ref: "#/components/responses/ValidationErrorResponse"
     post:
       tags: [Appointments]
       summary: Create an appointment
       parameters:
-        - $ref: '#/components/parameters/ClinicIdParam'
+        - $ref: "#/components/parameters/ClinicIdParam"
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AppointmentCreateInput'
+              $ref: "#/components/schemas/AppointmentCreateInput"
       responses:
-        '201':
+        "201":
           description: Appointment created
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SuccessAppointmentResponse'
-        '409':
+                $ref: "#/components/schemas/SuccessAppointmentResponse"
+        "409":
           description: Staff availability conflict
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '422':
-          $ref: '#/components/responses/ValidationErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
+        "422":
+          $ref: "#/components/responses/ValidationErrorResponse"
   /api/v1/clinics/{clinicId}/appointments/{id}:
     get:
       tags: [Appointments]
       summary: Get an appointment by id
       parameters:
-        - $ref: '#/components/parameters/ClinicIdParam'
-        - $ref: '#/components/parameters/IdParam'
+        - $ref: "#/components/parameters/ClinicIdParam"
+        - $ref: "#/components/parameters/IdParam"
       responses:
-        '200':
+        "200":
           description: Appointment details
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SuccessAppointmentResponse'
-        '404':
-          $ref: '#/components/responses/ErrorResponse'
+                $ref: "#/components/schemas/SuccessAppointmentResponse"
+        "404":
+          $ref: "#/components/responses/ErrorResponse"
   /api/v1/clinics/{clinicId}/appointments/{id}/status:
     patch:
       tags: [Appointments]
       summary: Update appointment status
       parameters:
-        - $ref: '#/components/parameters/ClinicIdParam'
-        - $ref: '#/components/parameters/IdParam'
+        - $ref: "#/components/parameters/ClinicIdParam"
+        - $ref: "#/components/parameters/IdParam"
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AppointmentStatusInput'
+              $ref: "#/components/schemas/AppointmentStatusInput"
       responses:
-        '200':
+        "200":
           description: Appointment updated
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SuccessAppointmentResponse'
-        '400':
-          $ref: '#/components/responses/ErrorResponse'
-        '422':
-          $ref: '#/components/responses/ValidationErrorResponse'
+                $ref: "#/components/schemas/SuccessAppointmentResponse"
+        "400":
+          $ref: "#/components/responses/ErrorResponse"
+        "422":
+          $ref: "#/components/responses/ValidationErrorResponse"
 components:
   parameters:
     IdParam:
@@ -263,13 +263,13 @@ components:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/ErrorResponse'
+            $ref: "#/components/schemas/ErrorResponse"
     ValidationErrorResponse:
       description: Validation error
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/ValidationErrorResponse'
+            $ref: "#/components/schemas/ValidationErrorResponse"
   schemas:
     Clinic:
       type: object
@@ -313,7 +313,7 @@ components:
           type: string
           format: date-time
         role:
-          $ref: '#/components/schemas/Role'
+          $ref: "#/components/schemas/Role"
     UserInput:
       type: object
       required: [name, email, role_id]
@@ -378,13 +378,13 @@ components:
           type: string
           format: date-time
         user:
-          $ref: '#/components/schemas/AppointmentUser'
+          $ref: "#/components/schemas/AppointmentUser"
         staff:
-          $ref: '#/components/schemas/AppointmentParticipant'
+          $ref: "#/components/schemas/AppointmentParticipant"
         service:
-          $ref: '#/components/schemas/AppointmentService'
+          $ref: "#/components/schemas/AppointmentService"
         status:
-          $ref: '#/components/schemas/AppointmentStatus'
+          $ref: "#/components/schemas/AppointmentStatus"
     AppointmentCreateInput:
       type: object
       required: [user_id, staff_id, service_id, appointment_date]
@@ -415,7 +415,7 @@ components:
           type: string
           example: success
         data:
-          $ref: '#/components/schemas/Clinic'
+          $ref: "#/components/schemas/Clinic"
     SuccessClinicsResponse:
       type: object
       properties:
@@ -425,7 +425,7 @@ components:
         data:
           type: array
           items:
-            $ref: '#/components/schemas/Clinic'
+            $ref: "#/components/schemas/Clinic"
     SuccessUserResponse:
       type: object
       properties:
@@ -433,7 +433,7 @@ components:
           type: string
           example: success
         data:
-          $ref: '#/components/schemas/User'
+          $ref: "#/components/schemas/User"
     SuccessUsersResponse:
       type: object
       properties:
@@ -443,7 +443,7 @@ components:
         data:
           type: array
           items:
-            $ref: '#/components/schemas/User'
+            $ref: "#/components/schemas/User"
     SuccessAppointmentResponse:
       type: object
       properties:
@@ -451,7 +451,7 @@ components:
           type: string
           example: success
         data:
-          $ref: '#/components/schemas/Appointment'
+          $ref: "#/components/schemas/Appointment"
     SuccessAppointmentsResponse:
       type: object
       properties:
@@ -461,7 +461,7 @@ components:
         data:
           type: array
           items:
-            $ref: '#/components/schemas/Appointment'
+            $ref: "#/components/schemas/Appointment"
     ErrorResponse:
       type: object
       properties:
@@ -490,4 +490,4 @@ components:
         errors:
           type: array
           items:
-            $ref: '#/components/schemas/ValidationErrorItem'
+            $ref: "#/components/schemas/ValidationErrorItem"
