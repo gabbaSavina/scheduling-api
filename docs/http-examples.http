@@ -1,0 +1,56 @@
+@baseUrl = http://localhost:3000
+@api = {{baseUrl}}/api/v1
+
+### Health check
+GET {{baseUrl}}/health
+
+### List clinics
+GET {{api}}/clinics
+
+### Create clinic
+POST {{api}}/clinics
+Content-Type: application/json
+
+{
+  "name": "North Clinic"
+}
+
+### Create user in clinic 1
+POST {{api}}/clinics/1/users
+Content-Type: application/json
+
+{
+  "name": "Ana Gomez",
+  "email": "ana@example.com",
+  "role_id": 1
+}
+
+### Create appointment in clinic 1
+POST {{api}}/clinics/1/appointments
+Content-Type: application/json
+
+{
+  "user_id": 1,
+  "staff_id": 1,
+  "service_id": 1,
+  "appointment_date": "2026-06-15T10:00:00Z"
+}
+
+### Update appointment status
+PATCH {{api}}/clinics/1/appointments/1/status
+Content-Type: application/json
+
+{
+  "status_id": 2
+}
+
+### Trigger validation error
+POST {{api}}/clinics/0/appointments
+Content-Type: application/json
+
+{
+  "user_id": 0,
+  "staff_id": "x",
+  "service_id": -1,
+  "appointment_date": "bad-date"
+}

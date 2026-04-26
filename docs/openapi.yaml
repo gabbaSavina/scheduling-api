@@ -1,0 +1,493 @@
+openapi: 3.0.3
+info:
+  title: Scheduling API
+  version: 1.0.0
+  description: >
+    Multi-tenant scheduling API for clinics, users, staff, services and
+    appointments.
+servers:
+  - url: http://localhost:3000
+    description: Local development
+tags:
+  - name: Health
+  - name: Clinics
+  - name: Users
+  - name: Staff
+  - name: Services
+  - name: Appointments
+paths:
+  /health:
+    get:
+      tags: [Health]
+      summary: Health check
+      responses:
+        '200':
+          description: API is running
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+                  timestamp:
+                    type: string
+                    format: date-time
+  /api/v1/clinics:
+    get:
+      tags: [Clinics]
+      summary: List active clinics
+      responses:
+        '200':
+          description: Clinics list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessClinicsResponse'
+    post:
+      tags: [Clinics]
+      summary: Create a clinic
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClinicInput'
+      responses:
+        '201':
+          description: Clinic created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessClinicResponse'
+        '409':
+          $ref: '#/components/responses/ErrorResponse'
+  /api/v1/clinics/{id}:
+    get:
+      tags: [Clinics]
+      summary: Get a clinic by id
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      responses:
+        '200':
+          description: Clinic details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessClinicResponse'
+        '404':
+          $ref: '#/components/responses/ErrorResponse'
+    put:
+      tags: [Clinics]
+      summary: Update a clinic
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClinicInput'
+      responses:
+        '200':
+          description: Clinic updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessClinicResponse'
+        '422':
+          $ref: '#/components/responses/ValidationErrorResponse'
+    delete:
+      tags: [Clinics]
+      summary: Deactivate a clinic
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      responses:
+        '204':
+          description: Clinic deactivated
+        '404':
+          $ref: '#/components/responses/ErrorResponse'
+  /api/v1/clinics/{clinicId}/users:
+    get:
+      tags: [Users]
+      summary: List users for a clinic
+      parameters:
+        - $ref: '#/components/parameters/ClinicIdParam'
+      responses:
+        '200':
+          description: Users list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessUsersResponse'
+        '422':
+          $ref: '#/components/responses/ValidationErrorResponse'
+    post:
+      tags: [Users]
+      summary: Create a user inside a clinic
+      parameters:
+        - $ref: '#/components/parameters/ClinicIdParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserInput'
+      responses:
+        '201':
+          description: User created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessUserResponse'
+        '409':
+          $ref: '#/components/responses/ErrorResponse'
+        '422':
+          $ref: '#/components/responses/ValidationErrorResponse'
+  /api/v1/clinics/{clinicId}/appointments:
+    get:
+      tags: [Appointments]
+      summary: List appointments for a clinic
+      parameters:
+        - $ref: '#/components/parameters/ClinicIdParam'
+        - in: query
+          name: status_id
+          schema:
+            type: integer
+            minimum: 1
+        - in: query
+          name: staff_id
+          schema:
+            type: integer
+            minimum: 1
+        - in: query
+          name: date
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Appointments list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessAppointmentsResponse'
+        '422':
+          $ref: '#/components/responses/ValidationErrorResponse'
+    post:
+      tags: [Appointments]
+      summary: Create an appointment
+      parameters:
+        - $ref: '#/components/parameters/ClinicIdParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AppointmentCreateInput'
+      responses:
+        '201':
+          description: Appointment created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessAppointmentResponse'
+        '409':
+          description: Staff availability conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          $ref: '#/components/responses/ValidationErrorResponse'
+  /api/v1/clinics/{clinicId}/appointments/{id}:
+    get:
+      tags: [Appointments]
+      summary: Get an appointment by id
+      parameters:
+        - $ref: '#/components/parameters/ClinicIdParam'
+        - $ref: '#/components/parameters/IdParam'
+      responses:
+        '200':
+          description: Appointment details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessAppointmentResponse'
+        '404':
+          $ref: '#/components/responses/ErrorResponse'
+  /api/v1/clinics/{clinicId}/appointments/{id}/status:
+    patch:
+      tags: [Appointments]
+      summary: Update appointment status
+      parameters:
+        - $ref: '#/components/parameters/ClinicIdParam'
+        - $ref: '#/components/parameters/IdParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AppointmentStatusInput'
+      responses:
+        '200':
+          description: Appointment updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessAppointmentResponse'
+        '400':
+          $ref: '#/components/responses/ErrorResponse'
+        '422':
+          $ref: '#/components/responses/ValidationErrorResponse'
+components:
+  parameters:
+    IdParam:
+      in: path
+      name: id
+      required: true
+      schema:
+        type: integer
+        minimum: 1
+    ClinicIdParam:
+      in: path
+      name: clinicId
+      required: true
+      schema:
+        type: integer
+        minimum: 1
+  responses:
+    ErrorResponse:
+      description: Generic error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    ValidationErrorResponse:
+      description: Validation error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ValidationErrorResponse'
+  schemas:
+    Clinic:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        active:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+    ClinicInput:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+          example: North Clinic
+    Role:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        active:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+        role:
+          $ref: '#/components/schemas/Role'
+    UserInput:
+      type: object
+      required: [name, email, role_id]
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        role_id:
+          type: integer
+          minimum: 1
+    AppointmentParticipant:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+    AppointmentUser:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+    AppointmentService:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        duration_minutes:
+          type: integer
+        price:
+          type: number
+          format: float
+    AppointmentStatus:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        is_final:
+          type: boolean
+    Appointment:
+      type: object
+      properties:
+        id:
+          type: integer
+        clinic_id:
+          type: integer
+        appointment_date:
+          type: string
+          format: date-time
+        created_at:
+          type: string
+          format: date-time
+        user:
+          $ref: '#/components/schemas/AppointmentUser'
+        staff:
+          $ref: '#/components/schemas/AppointmentParticipant'
+        service:
+          $ref: '#/components/schemas/AppointmentService'
+        status:
+          $ref: '#/components/schemas/AppointmentStatus'
+    AppointmentCreateInput:
+      type: object
+      required: [user_id, staff_id, service_id, appointment_date]
+      properties:
+        user_id:
+          type: integer
+          minimum: 1
+        staff_id:
+          type: integer
+          minimum: 1
+        service_id:
+          type: integer
+          minimum: 1
+        appointment_date:
+          type: string
+          format: date-time
+    AppointmentStatusInput:
+      type: object
+      required: [status_id]
+      properties:
+        status_id:
+          type: integer
+          minimum: 1
+    SuccessClinicResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: success
+        data:
+          $ref: '#/components/schemas/Clinic'
+    SuccessClinicsResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: success
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Clinic'
+    SuccessUserResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: success
+        data:
+          $ref: '#/components/schemas/User'
+    SuccessUsersResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: success
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/User'
+    SuccessAppointmentResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: success
+        data:
+          $ref: '#/components/schemas/Appointment'
+    SuccessAppointmentsResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: success
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Appointment'
+    ErrorResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: error
+        message:
+          type: string
+          example: Resource not found
+    ValidationErrorItem:
+      type: object
+      properties:
+        field:
+          type: string
+        message:
+          type: string
+    ValidationErrorResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: error
+        message:
+          type: string
+          example: Validation failed
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/ValidationErrorItem'

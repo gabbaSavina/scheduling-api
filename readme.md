@@ -57,6 +57,7 @@ npm run dev
 ```bash
 npm run dev
 npm start
+npm run check
 npm test
 ```
 
@@ -150,6 +151,13 @@ Content-Type: application/json
 - unknown route returns `404`
 - invalid route params return `422`
 - invalid appointment payload returns field-level validation errors
+
+## Portfolio Assets
+
+- `docs/openapi.yaml`: baseline OpenAPI contract for the core endpoints
+- `docs/http-examples.http`: ready-to-run request examples for local demos
+- `docs/demo-script.md`: 3-minute walkthrough for interviews
+- `.github/workflows/ci.yml`: CI that installs dependencies, runs syntax checks and executes the test suite
 
 ## Notes
 
